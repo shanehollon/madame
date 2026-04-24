@@ -1,0 +1,18 @@
+.superpowers/
+node_modules/
+*.log
+dist/
+src-tauri/target/
+src-tauri/gen/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# TypeScript incremental build info
+*.tsbuildinfo

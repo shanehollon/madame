@@ -1,0 +1,213 @@
+:root {
+  --titlebar-bg: #1f1f1f;
+  --titlebar-fg: #ccc;
+  --titlebar-fg-muted: #888;
+  --border: #e0e0e0;
+  --editor-bg: #ffffff;
+  --editor-fg: #202020;
+  --preview-bg: #ffffff;
+  --splitter-bg: #e5e5e5;
+  --splitter-hover: #b0b0b0;
+  --modal-overlay: rgba(0, 0, 0, 0.4);
+  --modal-bg: #ffffff;
+  --modal-border: #d0d0d0;
+  --toast-bg: #222;
+  --toast-fg: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --border: #333;
+    --editor-bg: #1e1e1e;
+    --editor-fg: #e4e4e4;
+    --preview-bg: #0d1117;
+    --splitter-bg: #333;
+    --splitter-hover: #555;
+    --modal-bg: #2a2a2a;
+    --modal-border: #444;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--editor-fg);
+  background: var(--editor-bg);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.titlebar {
+  height: 30px;
+  background: var(--titlebar-bg);
+  color: var(--titlebar-fg);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  user-select: none;
+  flex: 0 0 auto;
+}
+.titlebar .filename { flex: 1; }
+.titlebar .app-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  object-fit: contain;
+  filter: invert(1);
+}
+.titlebar .dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #f0883e;
+  margin-right: 6px;
+  visibility: hidden;
+}
+.titlebar.dirty .dot { visibility: visible; }
+.titlebar .window-controls { display: flex; gap: 0; }
+.titlebar .window-controls button {
+  background: transparent;
+  border: none;
+  color: var(--titlebar-fg);
+  width: 40px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.titlebar .window-controls button:hover { background: #333; }
+.titlebar .window-controls button.close:hover { background: #e81123; color: #fff; }
+
+/* macOS: native traffic lights are provided via titleBarStyle: "Overlay".
+   Reserve space for them on the left and hide our custom buttons. */
+body[data-platform="macos"] .titlebar { padding-left: 78px; }
+body[data-platform="macos"] .titlebar .window-controls { display: none; }
+
+.panes {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.pane {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  background: var(--editor-bg);
+}
+
+.pane.editor-pane {
+  display: flex;
+}
+.pane.editor-pane textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 12px;
+  font-family: "Consolas", "Menlo", "Monaco", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--editor-fg);
+  background: var(--editor-bg);
+}
+.pane.editor-pane textarea.wrap { white-space: pre-wrap; word-break: break-word; }
+.pane.editor-pane textarea.nowrap { white-space: pre; overflow-x: auto; }
+
+.pane.preview-pane {
+  background: var(--preview-bg);
+  padding: 20px 28px;
+}
+.pane.preview-pane .markdown-body {
+  max-width: 900px;
+  margin: 0 auto;
+  background: transparent;
+}
+
+.pane.hidden { display: none; }
+
+.splitter {
+  flex: 0 0 4px;
+  background: var(--splitter-bg);
+  cursor: col-resize;
+}
+.splitter:hover, .splitter.dragging { background: var(--splitter-hover); }
+
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: var(--modal-overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  z-index: 100;
+}
+.modal {
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+  border-radius: 6px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  color: var(--editor-fg);
+}
+.modal input {
+  border: none;
+  border-bottom: 1px solid var(--modal-border);
+  padding: 10px 12px;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+}
+.modal ul {
+  list-style: none;
+  margin: 0; padding: 0;
+  overflow-y: auto;
+}
+.modal li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.modal li:hover, .modal li.active { background: rgba(128,128,128,0.15); }
+
+.confirm-modal {
+  padding: 16px;
+  width: 420px;
+}
+.confirm-modal p { margin: 0 0 16px 0; }
+.confirm-modal .buttons { display: flex; gap: 8px; justify-content: flex-end; }
+.confirm-modal button {
+  padding: 6px 14px;
+  border: 1px solid var(--modal-border);
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.confirm-modal button.primary { background: #0969da; color: #fff; border-color: #0969da; }
+.confirm-modal button.danger { background: #cf222e; color: #fff; border-color: #cf222e; }
+
+.toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--toast-bg);
+  color: var(--toast-fg);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
