@@ -39,7 +39,10 @@ const panesEl = document.getElementById("panes")!;
 const editorPaneEl = document.getElementById("editor-pane")!;
 const previewPaneEl = document.getElementById("preview-pane")!;
 const splitterEl = document.getElementById("splitter")!;
-const editor = createEditor(document.getElementById("editor") as HTMLTextAreaElement);
+const editor = createEditor(
+  document.getElementById("editor") as HTMLTextAreaElement,
+  document.getElementById("editor-highlight") as HTMLElement,
+);
 const preview = createPreview(document.getElementById("preview") as HTMLElement);
 const titlebar = createTitlebar(document.getElementById("titlebar")!);
 const shortcuts = createShortcuts(window);
