@@ -88,6 +88,22 @@ function renderBlock(line: string): string {
     const rest = heading[2];
     return `<span class="tok-heading"><span class="tok-markup">${hashes} </span>${renderInline(rest)}</span>`;
   }
+
+  const quote = /^(\s*)> (.*)$/.exec(line);
+  if (quote) {
+    const indent = quote[1];
+    const rest = quote[2];
+    return `${indent}<span class="tok-quote"><span class="tok-markup">&gt; </span>${renderInline(rest)}</span>`;
+  }
+
+  const list = /^(\s*)([-*+]|\d+\.) (.*)$/.exec(line);
+  if (list) {
+    const indent = list[1];
+    const marker = list[2];
+    const rest = list[3];
+    return `${indent}<span class="tok-list-marker">${escape(marker)}</span> ${renderInline(rest)}`;
+  }
+
   return renderInline(line);
 }
 

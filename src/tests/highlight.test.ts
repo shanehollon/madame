@@ -92,4 +92,38 @@ describe("renderHighlight", () => {
     expect(out).toContain('tok-heading');
     expect(out).toContain('tok-strong');
   });
+
+  it("highlights unordered list markers", () => {
+    expect(renderHighlight("- item")).toContain('<span class="tok-list-marker">-</span>');
+    expect(renderHighlight("* item")).toContain('<span class="tok-list-marker">*</span>');
+    expect(renderHighlight("+ item")).toContain('<span class="tok-list-marker">+</span>');
+  });
+
+  it("highlights ordered list markers", () => {
+    expect(renderHighlight("1. first")).toContain('<span class="tok-list-marker">1.</span>');
+    expect(renderHighlight("42. forty-two")).toContain('<span class="tok-list-marker">42.</span>');
+  });
+
+  it("preserves leading whitespace before list markers", () => {
+    const out = renderHighlight("  - nested");
+    expect(out).toContain('  <span class="tok-list-marker">-</span>');
+  });
+
+  it("inline-tokenizes the body of a list item", () => {
+    const out = renderHighlight("- **bold** item");
+    expect(out).toContain('tok-list-marker');
+    expect(out).toContain('tok-strong');
+  });
+
+  it("highlights blockquotes", () => {
+    const out = renderHighlight("> quoted");
+    expect(out).toContain('<span class="tok-quote">');
+    expect(out).toContain('<span class="tok-markup">&gt; </span>');
+  });
+
+  it("inline-tokenizes the body of a blockquote", () => {
+    const out = renderHighlight("> see *this*");
+    expect(out).toContain('tok-quote');
+    expect(out).toContain('tok-em');
+  });
 });
