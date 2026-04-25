@@ -4,6 +4,7 @@ export interface EditorConfig {
   word_wrap: boolean;
   font_family: string | null;
   font_size: number;
+  syntax_highlighting: boolean;
 }
 
 export interface PreviewConfig {
