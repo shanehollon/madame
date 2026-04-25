@@ -23,4 +23,26 @@ describe("renderHighlight", () => {
   it("appends a trailing space when source ends with newline (so <pre> renders the empty line)", () => {
     expect(renderHighlight("hello\n")).toBe("hello\n ");
   });
+
+  it("wraps an h1 with tok-heading and the # in tok-markup", () => {
+    const out = renderHighlight("# Title");
+    expect(out).toBe(
+      '<span class="tok-heading"><span class="tok-markup"># </span>Title</span>',
+    );
+  });
+
+  it("supports h2 through h6", () => {
+    expect(renderHighlight("## Two")).toContain('tok-markup">## </span>Two');
+    expect(renderHighlight("###### Six")).toContain(
+      'tok-markup">###### </span>Six',
+    );
+  });
+
+  it("does not treat 7+ hashes as a heading", () => {
+    expect(renderHighlight("####### nope")).toBe("####### nope");
+  });
+
+  it("does not treat # without trailing space as a heading", () => {
+    expect(renderHighlight("#nope")).toBe("#nope");
+  });
 });

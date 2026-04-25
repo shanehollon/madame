@@ -14,6 +14,12 @@ function renderInline(s: string): string {
 }
 
 function renderBlock(line: string): string {
+  const heading = /^(#{1,6}) (.*)$/.exec(line);
+  if (heading) {
+    const hashes = heading[1];
+    const rest = heading[2];
+    return `<span class="tok-heading"><span class="tok-markup">${hashes} </span>${renderInline(rest)}</span>`;
+  }
   return renderInline(line);
 }
 
