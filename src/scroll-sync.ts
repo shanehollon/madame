@@ -36,6 +36,14 @@ export function createScrollSync(editor: Editor, preview: Preview): ScrollSync {
     preview.scrollToSourceLine(line);
   });
 
+  // After each edit, the preview re-renders (debounced ~100ms). When its
+  // scrollHeight changes the browser may clamp scrollTop, firing a scroll
+  // event that is not user-initiated. Suppress the preview→editor sync
+  // long enough to cover the debounce + render + resulting scroll.
+  editor.onChange(() => {
+    suppressUntil = now() + 300;
+  });
+
   return {
     setEnabled(on) { enabled = on; },
   };

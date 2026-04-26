@@ -3,16 +3,22 @@ import { createScrollSync } from "../scroll-sync";
 
 function mockEditor() {
   let top = 0;
-  const listeners: Array<() => void> = [];
+  const scrollListeners: Array<() => void> = [];
+  const changeListeners: Array<(t: string) => void> = [];
+  const cursorListeners: Array<(line: number) => void> = [];
   return {
     getVisibleTopLine: () => Math.floor(top / 20),
     scrollToLine: vi.fn((line: number) => { top = line * 20; }),
     getElement() {
       const el = document.createElement("div") as any;
-      el.addEventListener = (_e: string, fn: () => void) => { if (_e === "scroll") listeners.push(fn); };
+      el.addEventListener = (_e: string, fn: () => void) => { if (_e === "scroll") scrollListeners.push(fn); };
       return el;
     },
-    fireScroll(newTop: number) { top = newTop; listeners.forEach((f) => f()); },
+    onChange: (cb: (t: string) => void) => { changeListeners.push(cb); },
+    onCursorMove: (cb: (line: number) => void) => { cursorListeners.push(cb); },
+    fireScroll(newTop: number) { top = newTop; scrollListeners.forEach((f) => f()); },
+    fireChange() { changeListeners.forEach((f) => f("")); },
+    fireCursorMove(line: number) { cursorListeners.forEach((f) => f(line)); },
   };
 }
 
@@ -65,5 +71,14 @@ describe("scroll-sync", () => {
     sync.setEnabled(false);
     ed.fireScroll(200);
     expect(pv.scrollToSourceLine).not.toHaveBeenCalled();
+  });
+
+  it("suppresses preview→editor sync briefly after an editor edit", () => {
+    const ed = mockEditor();
+    const pv = mockPreview();
+    createScrollSync(ed as any, pv as any);
+    ed.fireChange();
+    pv.fireScroll(7);
+    expect(ed.scrollToLine).not.toHaveBeenCalled();
   });
 });
