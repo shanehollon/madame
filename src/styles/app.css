@@ -150,7 +150,7 @@ body[data-platform="macos"] .titlebar .window-controls { display: none; }
   caret-color: var(--editor-fg);
   position: relative;
   z-index: 1;
-  scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 .pane.editor-pane .editor-highlight {
   position: absolute;
@@ -163,13 +163,11 @@ body[data-platform="macos"] .titlebar .window-controls { display: none; }
   color: var(--editor-fg);
   background: var(--editor-bg);
   pointer-events: none;
-  overflow: scroll;
-  scrollbar-gutter: stable;
-  scrollbar-width: none;
+  overflow-y: scroll;
+  overflow-x: hidden;
   z-index: 0;
   tab-size: 2;
 }
-.pane.editor-pane .editor-highlight::-webkit-scrollbar { display: none; }
 .pane.editor-pane textarea.wrap,
 .pane.editor-pane .editor-highlight.wrap {
   white-space: pre-wrap;
