@@ -16,8 +16,6 @@
   --syn-markup: #a0a4ab;
   --syn-heading: #1f6feb;
   --syn-code: #7d4cdb;
-  --syn-code-bg: rgba(125, 76, 219, 0.08);
-  --syn-codeblock-bg: rgba(125, 76, 219, 0.06);
   --syn-link: #0a7d4f;
   --syn-link-url: #a0a4ab;
   --syn-quote: #737880;
@@ -37,8 +35,6 @@
     --syn-markup: #6e7681;
     --syn-heading: #79c0ff;
     --syn-code: #c8a2ff;
-    --syn-code-bg: rgba(200, 162, 255, 0.10);
-    --syn-codeblock-bg: rgba(200, 162, 255, 0.07);
     --syn-link: #7ee2b8;
     --syn-link-url: #6e7681;
     --syn-quote: #9aa0a6;
@@ -189,10 +185,9 @@ body[data-platform="macos"] .titlebar .window-controls { display: none; }
 /* Token palette */
 .tok-markup { color: var(--syn-markup); }
 .tok-heading { color: var(--syn-heading); font-weight: bold; }
-.tok-strong { font-weight: bold; }
-.tok-em { font-style: italic; }
-.tok-code { color: var(--syn-code); background: var(--syn-code-bg); border-radius: 3px; }
-.tok-codeblock { background: var(--syn-codeblock-bg); }
+.tok-heading .tok-markup { color: inherit; }
+.tok-code { color: var(--syn-code); }
+.tok-codeblock { color: var(--syn-code); }
 .tok-link-text { color: var(--syn-link); }
 .tok-link-url { color: var(--syn-link-url); }
 .tok-quote { color: var(--syn-quote); font-style: italic; }
