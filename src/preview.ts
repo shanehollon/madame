@@ -17,7 +17,7 @@ export interface Preview {
 
 function createMdInstance(): MarkdownIt {
   const md: MarkdownIt = new MarkdownIt({
-    html: false,
+    html: true,
     linkify: true,
     typographer: false,
     breaks: false,

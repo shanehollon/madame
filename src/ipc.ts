@@ -11,6 +11,7 @@ export const ipc = {
   openFile: (path: string) => invoke<OpenFileResult>("open_file", { path }),
   saveFile: (path: string, content: string) => invoke<void>("save_file", { path, content }),
   stopWatching: () => invoke<void>("stop_watching"),
+  takePendingOpenPaths: () => invoke<string[]>("take_pending_open_paths"),
 };
 
 export const events = {

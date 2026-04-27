@@ -274,7 +274,9 @@ async function boot() {
     // else: user cancelled — window stays open
   });
 
-  // CLI-arg path
+  // OS-launched file (argv on Windows/Linux, Apple Event on macOS) and any
+  // file-open requests that arrive while running. Register the listener BEFORE
+  // draining the pending queue so we don't miss requests that arrive in between.
   await events.onCliOpenPath((p) => void openPath(p));
 
   // Drag-and-drop file to open (webview-level event in Tauri 2)
@@ -286,8 +288,14 @@ async function boot() {
     await openPath(paths[0]);
   });
 
-  // Open last file if present.
-  if (appState.last_open_path) {
+  // Drain any open requests that arrived before the listener was registered
+  // (e.g. argv path on launch) and flip the backend into event-emit mode.
+  const pending = await ipc.takePendingOpenPaths();
+  const launchPath = pending.length > 0 ? pending[pending.length - 1] : null;
+
+  if (launchPath) {
+    await openPath(launchPath);
+  } else if (appState.last_open_path) {
     await openPath(appState.last_open_path);
   } else {
     editor.setText("# Madame\n\nWelcome. Ctrl+O to open a file.\n");

@@ -1,5 +1,7 @@
 # Madame
 
+<img src="src/public/madame_logo.png" alt="Madame" width="80" />
+
 A minimal two-pane Markdown editor/viewer. Left (or right) is a plain textarea; the other side is a live-rendered preview with syntax-highlighted code and scroll sync. Built as a Tauri 2 desktop app with a TypeScript/Vite frontend and a small Rust backend.
 
 ## Features
@@ -100,7 +102,7 @@ Madame is deliberately shipped as a single standalone binary — no installers. 
 ```bash
 sudo apt update
 sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file \
-  libssl-dev libayatana-appindicator3-dev librsvg2-dev pkg-config
+  libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev pkg-config
 ```
 Other distros: see [Tauri 2 Linux prerequisites](https://tauri.app/start/prerequisites/#linux).
 
@@ -126,6 +128,8 @@ Output lands under `src-tauri/target/release/`:
 | Linux   | `madame` | Standalone ELF. Make sure it's executable (`chmod +x`) after moving. |
 
 On first run, `madame_config.yaml` and `editor_state.json` are created next to the binary (or inside `Madame.app/Contents/MacOS/` on macOS) — so every copy is its own independent instance.
+
+> **Note:** because state lives next to the binary, don't put `madame.exe` in a write-protected location (e.g. `C:\Program Files\`). The state write will fail with `Access is denied` and file-open will surface that error. Drop it under `%LOCALAPPDATA%`, your home directory, or any user-writable folder.
 
 ### Regenerate app icons
 

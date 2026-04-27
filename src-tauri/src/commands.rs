@@ -7,11 +7,17 @@ use crate::error::{AppError, Result};
 use crate::state::{self, AppState};
 use crate::watcher::FileWatcher;
 
+pub struct OpenQueue {
+    pub pending: Vec<PathBuf>,
+    pub frontend_ready: bool,
+}
+
 pub struct AppCtx {
     pub state_path: PathBuf,
     pub config: Mutex<Config>,
     pub state: Mutex<AppState>,
     pub watcher: Mutex<FileWatcher>,
+    pub open_queue: Mutex<OpenQueue>,
 }
 
 #[derive(serde::Serialize)]
@@ -109,4 +115,18 @@ pub fn save_file(ctx: State<AppCtx>, path: String, content: String) -> Result<()
 #[tauri::command]
 pub fn stop_watching(ctx: State<AppCtx>) {
     ctx.watcher.lock().unwrap().unwatch();
+}
+
+// Frontend calls this once after registering its `cli-open-path` listener.
+// Returns any paths that arrived before the listener existed (argv on launch,
+// macOS RunEvent::Opened during boot) and flips the queue into "ready" mode so
+// any future open requests are emitted as events instead of buffered.
+#[tauri::command]
+pub fn take_pending_open_paths(ctx: State<AppCtx>) -> Vec<String> {
+    let mut q = ctx.open_queue.lock().unwrap();
+    q.frontend_ready = true;
+    q.pending
+        .drain(..)
+        .map(|p| p.to_string_lossy().to_string())
+        .collect()
 }
