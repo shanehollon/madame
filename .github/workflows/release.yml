@@ -27,3 +27,38 @@ jobs:
             exit 1
           fi
           echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+  build-windows:
+    needs: validate-version
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.validate-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend deps
+        run: bun install --frozen-lockfile
+
+      - name: Build (no bundle)
+        run: bun tauri build --no-bundle
+
+      - name: Package binary into zip
+        shell: pwsh
+        run: |
+          $zipName = "madame-${env:VERSION}-x86_64-windows.zip"
+          Compress-Archive -Path src-tauri/target/release/madame.exe -DestinationPath $zipName
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: madame-${{ env.VERSION }}-x86_64-windows.zip
+          if-no-files-found: error
