@@ -2,7 +2,7 @@
 
 # Madame
 
-A minimal two-pane Markdown editor/viewer. One side is plain text with readability highlighting; the other is a full live-rendered Markdown preview.
+A minimal cross-platform two-pane Markdown editor/viewer; side-by-side plain text with readability highlighting and a live-rendered Markdown preview.
 
 <img src="src/public/madame_screenshot.png" alt="Madame editor screenshot" width="300" />
 
@@ -13,6 +13,7 @@ A minimal two-pane Markdown editor/viewer. One side is plain text with readabili
 - Syntax highlighting, GitHub-style rendering, task lists, header anchors.
 - Open/save via native dialogs, drag-and-drop, CLI arg, and an MRU "recent files" picker.
 - External file-change detection — prompts to reload if the file changes on disk.
+- Support for being the default launch application for markdown files
 - Portable: config (`madame_config.yaml`) and state (`editor_state.json`) live next to the binary (generated on first run), so each copy of `madame.exe` is a self-contained instance.
 - Persistent window size/position, splitter ratio, hot keys and view mode.
 

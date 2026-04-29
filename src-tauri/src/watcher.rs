@@ -1,13 +1,14 @@
 use notify::{recommended_watcher, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use crate::error::{AppError, Result};
 
 pub struct FileWatcher {
     watcher: Option<RecommendedWatcher>,
     current_path: Arc<Mutex<Option<PathBuf>>>,
-    paused: Arc<Mutex<bool>>,
+    suppress_until: Arc<Mutex<Option<Instant>>>,
 }
 
 impl FileWatcher {
@@ -15,7 +16,7 @@ impl FileWatcher {
         Self {
             watcher: None,
             current_path: Arc::new(Mutex::new(None)),
-            paused: Arc::new(Mutex::new(false)),
+            suppress_until: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -27,7 +28,7 @@ impl FileWatcher {
     {
         self.unwatch();
 
-        let paused = self.paused.clone();
+        let suppress_until = self.suppress_until.clone();
         let current_path = self.current_path.clone();
         let target = path.to_path_buf();
 
@@ -36,8 +37,10 @@ impl FileWatcher {
             if !matches!(event.kind, EventKind::Modify(_) | EventKind::Create(_)) {
                 return;
             }
-            if *paused.lock().unwrap() {
-                return;
+            if let Some(until) = *suppress_until.lock().unwrap() {
+                if Instant::now() < until {
+                    return;
+                }
             }
             let Some(watched) = current_path.lock().unwrap().clone() else { return };
             for p in &event.paths {
@@ -64,12 +67,12 @@ impl FileWatcher {
         *self.current_path.lock().unwrap() = None;
     }
 
-    pub fn pause(&self) {
-        *self.paused.lock().unwrap() = true;
-    }
-
-    pub fn resume(&self) {
-        *self.paused.lock().unwrap() = false;
+    /// Ignore events for `duration` from now. Call this immediately before
+    /// writing the watched file: `notify` delivers FS events asynchronously
+    /// on a background thread, so an instantaneous pause/resume around the
+    /// write doesn't cover the event when it actually arrives.
+    pub fn suppress_for(&self, duration: Duration) {
+        *self.suppress_until.lock().unwrap() = Some(Instant::now() + duration);
     }
 }
 

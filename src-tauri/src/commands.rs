@@ -100,10 +100,11 @@ pub fn open_file(app: AppHandle, ctx: State<AppCtx>, path: String) -> Result<Ope
 #[tauri::command]
 pub fn save_file(ctx: State<AppCtx>, path: String, content: String) -> Result<()> {
     let p = PathBuf::from(&path);
-    ctx.watcher.lock().unwrap().pause();
-    let res = std::fs::write(&p, content).map_err(AppError::from);
-    ctx.watcher.lock().unwrap().resume();
-    res?;
+    ctx.watcher
+        .lock()
+        .unwrap()
+        .suppress_for(std::time::Duration::from_millis(500));
+    std::fs::write(&p, content)?;
 
     let limit = ctx.config.lock().unwrap().files.recent_limit as usize;
     let mut st = ctx.state.lock().unwrap();
