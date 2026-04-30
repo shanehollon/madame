@@ -19,7 +19,7 @@ A minimal cross-platform two-pane Markdown editor/viewer; side-by-side plain tex
 
 ## Install
 
-Prebuilt binaries for tagged releases are on the [Releases page](https://github.com/shanehollon/madame/releases): a Windows `.zip`, a Linux `.tar.gz`, and a macOS `.zip` (Apple Silicon).
+Prebuilt binaries for tagged releases are on the [Releases page](https://github.com/shanehollon/madame/releases): a Windows `.zip`, a Linux `.tar.gz`, and a macOS `.zip` (Apple Silicon). **NOTE:** Mac builds are currently unsigned and require running `xattr -c <path to app>/Madame.app/` to bypass gatekeeper and allow it to execute.
 
 Linux users on Nix/NixOS can run or install directly from the flake:
 
