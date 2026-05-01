@@ -9,7 +9,7 @@ pkgs.mkShell {
     pkg-config
   ];
   buildInputs = with pkgs; [
-    webkit2gtk_4_1
+    webkitgtk_4_1
     gtk3
     libsoup_3
     glib-networking

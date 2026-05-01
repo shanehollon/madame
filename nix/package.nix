@@ -13,11 +13,12 @@ pkgs.stdenv.mkDerivation {
   nativeBuildInputs = with pkgs; [
     autoPatchelfHook
     makeWrapper
+    wrapGAppsHook3
     copyDesktopItems
   ];
 
   buildInputs = with pkgs; [
-    webkit2gtk_4_1
+    webkitgtk_4_1
     gtk3
     libsoup_3
     glib-networking
@@ -29,12 +30,12 @@ pkgs.stdenv.mkDerivation {
 
   installPhase = ''
     runHook preInstall
-    install -Dm755 madame/madame                $out/bin/madame
-    install -Dm644 madame/icons/32x32.png       $out/share/icons/hicolor/32x32/apps/madame.png
-    install -Dm644 madame/icons/64x64.png       $out/share/icons/hicolor/64x64/apps/madame.png
-    install -Dm644 madame/icons/128x128.png     $out/share/icons/hicolor/128x128/apps/madame.png
-    install -Dm644 madame/icons/128x128@2x.png  $out/share/icons/hicolor/256x256/apps/madame.png
-    install -Dm644 madame/icons/icon.png        $out/share/icons/hicolor/512x512/apps/madame.png
+    install -Dm755 madame                $out/bin/madame
+    install -Dm644 icons/32x32.png       $out/share/icons/hicolor/32x32/apps/madame.png
+    install -Dm644 icons/64x64.png       $out/share/icons/hicolor/64x64/apps/madame.png
+    install -Dm644 icons/128x128.png     $out/share/icons/hicolor/128x128/apps/madame.png
+    install -Dm644 icons/128x128@2x.png  $out/share/icons/hicolor/256x256/apps/madame.png
+    install -Dm644 icons/icon.png        $out/share/icons/hicolor/512x512/apps/madame.png
     runHook postInstall
   '';
 
