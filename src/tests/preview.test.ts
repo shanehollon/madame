@@ -51,6 +51,78 @@ describe("preview", () => {
     expect(withLines.length).toBeGreaterThan(0);
   });
 
+  describe("frontmatter", () => {
+    it("renders YAML frontmatter as a key/value table", () => {
+      const p = createPreview(container);
+      p.render("---\nname: thing\ndescription: thing\nother: thing\n---\n");
+
+      const table = container.querySelector("table.frontmatter");
+      expect(table).toBeTruthy();
+
+      const rows = container.querySelectorAll("table.frontmatter tbody tr");
+      expect(rows.length).toBe(3);
+
+      const firstKey = rows[0].querySelector("th")?.textContent;
+      const firstValue = rows[0].querySelector("td")?.textContent;
+      expect(firstKey).toBe("name");
+      expect(firstValue).toBe("thing");
+    });
+
+    it("does not render frontmatter delimiters as HRs", () => {
+      const p = createPreview(container);
+      p.render("---\nname: thing\n---\n");
+      expect(container.querySelector("hr")).toBeNull();
+    });
+
+    it("does not turn frontmatter content into a Setext heading", () => {
+      const p = createPreview(container);
+      p.render("---\nname: thing\n---\n");
+      expect(container.querySelector("h2")).toBeNull();
+    });
+
+    it("renders mid-document --- as HR (not frontmatter)", () => {
+      const p = createPreview(container);
+      p.render("# Title\n\nbody\n\n---\n\nmore\n");
+      expect(container.querySelector("hr")).toBeTruthy();
+      expect(container.querySelector("table.frontmatter")).toBeNull();
+    });
+
+    it("preserves Setext H2 (Title\\n---) at top of file", () => {
+      const p = createPreview(container);
+      p.render("Heading\n---\n\nbody\n");
+      expect(container.querySelector("h2")?.textContent).toContain("Heading");
+      expect(container.querySelector("table.frontmatter")).toBeNull();
+    });
+
+    it("renders content after frontmatter normally", () => {
+      const p = createPreview(container);
+      p.render("---\nname: thing\n---\n\n# Heading\n\nbody\n");
+      expect(container.querySelector("table.frontmatter")).toBeTruthy();
+      expect(container.querySelector("h1")?.textContent).toContain("Heading");
+    });
+
+    it("falls through if frontmatter has no closing ---", () => {
+      const p = createPreview(container);
+      p.render("---\nname: thing\nother: thing\n");
+      expect(container.querySelector("table.frontmatter")).toBeNull();
+    });
+
+    it("strips surrounding double quotes from values", () => {
+      const p = createPreview(container);
+      p.render('---\ntitle: "My Doc"\n---\n');
+      const value = container.querySelector("table.frontmatter td")?.textContent;
+      expect(value).toBe("My Doc");
+    });
+
+    it("renders values literally (no markdown parsing)", () => {
+      const p = createPreview(container);
+      p.render("---\nname: *not italic*\n---\n");
+      const value = container.querySelector("table.frontmatter td");
+      expect(value?.querySelector("em")).toBeNull();
+      expect(value?.textContent).toBe("*not italic*");
+    });
+  });
+
   describe("scroll math", () => {
     function rect(top: number, height = 30): DOMRect {
       return {

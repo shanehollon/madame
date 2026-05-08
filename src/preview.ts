@@ -1,6 +1,7 @@
 import MarkdownIt from "markdown-it";
 import type Token from "markdown-it/lib/token.mjs";
 import type { Options } from "markdown-it/lib/index.mjs";
+import type StateBlock from "markdown-it/lib/rules_block/state_block.mjs";
 import taskLists from "markdown-it-task-lists";
 import anchor from "markdown-it-anchor";
 import hljs from "highlight.js";
@@ -13,6 +14,55 @@ export interface Preview {
   getFirstVisibleSourceLine(): number;
   scrollToSourceLine(line: number, offsetFromTop?: number): void;
   isSourceLineVisible(line: number): boolean;
+}
+
+function frontmatterRule(state: StateBlock, startLine: number, endLine: number, silent: boolean): boolean {
+  if (startLine !== 0) return false;
+  if (state.sCount[0] !== 0) return false;
+
+  const firstLineStart = state.bMarks[0] + state.tShift[0];
+  const firstLineEnd = state.eMarks[0];
+  if (state.src.slice(firstLineStart, firstLineEnd).trim() !== "---") return false;
+
+  let closeLine = -1;
+  for (let line = 1; line < endLine; line++) {
+    const text = state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]).trim();
+    if (text === "---") { closeLine = line; break; }
+  }
+  if (closeLine === -1) return false;
+
+  const entries: { key: string; value: string }[] = [];
+  for (let line = 1; line < closeLine; line++) {
+    const text = state.src.slice(state.bMarks[line] + state.tShift[line], state.eMarks[line]).trim();
+    if (!text || text.startsWith("#")) continue;
+    const colonIdx = text.indexOf(":");
+    if (colonIdx === -1) continue;
+    const key = text.slice(0, colonIdx).trim();
+    let value = text.slice(colonIdx + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"') && value.length >= 2) ||
+      (value.startsWith("'") && value.endsWith("'") && value.length >= 2)
+    ) {
+      value = value.slice(1, -1);
+    }
+    entries.push({ key, value });
+  }
+  if (entries.length === 0) return false;
+  if (silent) return true;
+
+  const escape = state.md.utils.escapeHtml;
+  let html = `<table class="frontmatter" data-source-line="0"><tbody>`;
+  for (const { key, value } of entries) {
+    html += `<tr><th scope="row">${escape(key)}</th><td>${escape(value)}</td></tr>`;
+  }
+  html += `</tbody></table>\n`;
+
+  const token = state.push("html_block", "", 0);
+  token.content = html;
+  token.map = [startLine, closeLine + 1];
+
+  state.line = closeLine + 1;
+  return true;
 }
 
 function createMdInstance(): MarkdownIt {
@@ -32,6 +82,7 @@ function createMdInstance(): MarkdownIt {
       return `<pre><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
     },
   });
+  md.block.ruler.before("hr", "frontmatter", frontmatterRule);
   md.use(taskLists, { enabled: true });
   md.use(anchor, {});
 
